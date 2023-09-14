@@ -1,0 +1,35 @@
+cmake_minimum_required(VERSION 3.21)
+
+set(SRC_PATH source)
+set(PROJECT_NAME akoflat)
+
+function(SUBDIRLIST PREFIX FOLDER_PATH)
+    message(folder_path " ${FOLDER_PATH}")
+
+    FILE(GLOB_RECURSE children LIST_DIRECTORIES true ${FOLDER_PATH}/*)
+    SET(dirlist "")
+    FOREACH(child ${children})
+
+        IF(IS_DIRECTORY ${child})
+            LIST(APPEND dirlist ${child})
+        ENDIF()
+    ENDFOREACH()
+
+    set(${PREFIX}_FOLDERS ${dirlist} PARENT_SCOPE)
+endfunction()
+
+project(${PROJECT_NAME} LANGUAGES CXX)
+
+file(GLOB_RECURSE SRC_FILES ${SRC_PATH}/*.cpp)
+message(STATUS SRC_FILES = "${SRC_FILES}")
+
+SUBDIRLIST(HEADER ${SRC_PATH})
+message(STATUS Include Folders -> = "${HEADER_FOLDERS}")
+
+add_executable(${PROJECT_NAME} ${SRC_FILES})
+
+target_include_directories(${PROJECT_NAME} PRIVATE ${HEADER_FOLDERS})
+
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
+
+install(TARGETS ${PROJECT_NAME})
