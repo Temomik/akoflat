@@ -1,1 +1,4 @@
 build/**
+tests/build**
+tmp/**
+.DS_Store
