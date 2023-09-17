@@ -33,3 +33,44 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${HEADER_FOLDERS})
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
 install(TARGETS ${PROJECT_NAME})
+
+set(TESTABLE_PROJECT_NAME akoflat_tests)
+set(TEST_SRC_PATH tests/source)
+
+project(${TESTABLE_PROJECT_NAME} LANGUAGES CXX)
+
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+)
+
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+# set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
+enable_testing()
+
+file(GLOB_RECURSE SRC_FILES ${SRC_PATH}/*.cpp)
+file(GLOB_RECURSE TEST_SRC_FILES ${TEST_SRC_PATH}/*.cpp)
+
+list(FILTER SRC_FILES EXCLUDE REGEX "main.cpp")
+
+message(STATUS SRC_FILES = "${SRC_FILES}")
+message(STATUS TEST_SRC_FILES = "${TEST_SRC_FILES}")
+
+SUBDIRLIST(TEST_HEADER ${TEST_SRC_PATH})
+SUBDIRLIST(HEADER ${SRC_PATH})
+message(STATUS Include Folders -> = "${HEADER_FOLDERS}")
+
+add_executable(${TESTABLE_PROJECT_NAME} ${SRC_FILES} ${TEST_SRC_FILES})
+target_include_directories(${TESTABLE_PROJECT_NAME} PRIVATE ${HEADER_FOLDERS} ${TEST_HEADER_FOLDERS})
+target_link_libraries(${TESTABLE_PROJECT_NAME} PRIVATE GTest::gtest_main)
+target_compile_features(${TESTABLE_PROJECT_NAME} PRIVATE cxx_std_17)
+
+if (WIN32 AND BUILD_SHARED_LIBS)
+    add_custom_command(TARGET ${TESTABLE_PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${TESTABLE_PROJECT_NAME}> $<TARGET_FILE_DIR:${TESTABLE_PROJECT_NAME}> COMMAND_EXPAND_LISTS)
+endif()
+
+install(TARGETS ${TESTABLE_PROJECT_NAME})
