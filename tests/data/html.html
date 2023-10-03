@@ -1,0 +1,198 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>nginx http server hello world | Bartek’s Cheat Sheet</title>
+<meta name="generator" content="Jekyll v3.9.2" />
+<meta property="og:title" content="nginx http server hello world" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="nginx (pronounced engine X) is an HTTP server and much more. Here we show how to serve a simple static web page using it." />
+<meta property="og:description" content="nginx (pronounced engine X) is an HTTP server and much more. Here we show how to serve a simple static web page using it." />
+<link rel="canonical" href="/nginx/node/javascript/2019/12/15/nginx-hello-world.html" />
+<meta property="og:url" content="/nginx/node/javascript/2019/12/15/nginx-hello-world.html" />
+<meta property="og:site_name" content="Bartek’s Cheat Sheet" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-12-15T07:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="nginx http server hello world" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2019-12-15T07:00:00+00:00","datePublished":"2019-12-15T07:00:00+00:00","description":"nginx (pronounced engine X) is an HTTP server and much more. Here we show how to serve a simple static web page using it.","headline":"nginx http server hello world","mainEntityOfPage":{"@type":"WebPage","@id":"/nginx/node/javascript/2019/12/15/nginx-hello-world.html"},"url":"/nginx/node/javascript/2019/12/15/nginx-hello-world.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="Bartek's Cheat Sheet" /><!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-166989218-1"></script>
+<script>
+ window.dataLayer = window.dataLayer || [];
+ function gtag(){dataLayer.push(arguments);}
+ gtag('js', new Date());
+
+ gtag('config', 'UA-166989218-1');
+</script>
+</head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Bartek&#39;s Cheat Sheet</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <script type="text/x-mathjax-config">
+     MathJax.Hub.Config({
+         tex2jax: {
+             skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+             inlineMath: [['$','$']]
+         }
+     });
+  </script>
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script> 
+  
+  <h1 class="post-title p-name" itemprop="name headline">nginx http server hello world</h1>
+  <p class="post-meta">
+    <time class="dt-published" datetime="2019-12-15T07:00:00+00:00" itemprop="datePublished">Dec 15, 2019
+    </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p><a href="https://nginx.org/en/">nginx</a> (pronounced engine X) is an HTTP server and much more. Here we
+show how to serve a simple static web page using it.</p>
+
+<p>Here we are going to create custom docker with nginx installation.</p>
+
+<h2 id="nginxconf">nginx.conf</h2>
+
+<p>Create <code class="language-plaintext highlighter-rouge">nginx.conf</code> file. For more information please look at
+<a href="https://nginx.org/en/docs/beginners_guide.html">https://nginx.org/en/docs/beginners_guide.html</a>.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>daemon off<span class="p">;</span>
+
+events <span class="o">{</span>
+    worker_connections 1024<span class="p">;</span>
+<span class="o">}</span>
+
+http <span class="o">{</span>
+
+    server <span class="o">{</span>
+        listen 80<span class="p">;</span>
+        
+        location / <span class="o">{</span>
+            root /www/data<span class="p">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="simple-indexhtml">Simple index.html</h2>
+
+<p>Create <code class="language-plaintext highlighter-rouge">./www/data/index.html</code> file with, for example:</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;!doctype html&gt;</span>
+<span class="nt">&lt;html&gt;</span>
+  <span class="nt">&lt;head&gt;</span>
+    <span class="nt">&lt;title&gt;</span>Hello nginx<span class="nt">&lt;/title&gt;</span>
+    <span class="nt">&lt;meta</span> <span class="na">charset=</span><span class="s">"utf-8"</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;/head&gt;</span>
+  <span class="nt">&lt;body&gt;</span>
+    <span class="nt">&lt;h1&gt;</span>
+      Hello World!
+    <span class="nt">&lt;/h1&gt;</span>
+  <span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</code></pre></div></div>
+
+<h2 id="dockerfile">Dockerfile</h2>
+
+<p>And finaly <code class="language-plaintext highlighter-rouge">Dockerfile</code></p>
+
+<div class="language-dockerfile highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">FROM</span><span class="s"> ubuntu:18.04</span>
+
+<span class="k">RUN </span>apt-get update
+<span class="k">RUN </span>apt-get <span class="nb">install</span> <span class="nt">-y</span> nginx
+
+<span class="k">ADD</span><span class="s"> nginx.conf /etc/nginx/nginx.conf</span>
+<span class="k">ADD</span><span class="s"> ./www /www</span>
+
+<span class="k">EXPOSE</span><span class="s"> 80</span>
+<span class="k">CMD</span><span class="s"> ["nginx"]</span>
+</code></pre></div></div>
+
+<h2 id="build-it-and-run-it">Build it and run it</h2>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker build <span class="nt">--tag</span><span class="o">=</span>simpleubuntu <span class="nb">.</span> 
+docker run <span class="nt">--detach</span> <span class="nt">--publish</span><span class="o">=</span>5001:80<span class="se">\</span>
+    <span class="nt">--name</span><span class="o">=</span>simpleubuntu simpleubuntu
+</code></pre></div></div>
+
+<p>Your page is available at
+<a href="http://localhost:5001/">http://localhost:5001/</a></p>
+
+<p><em>Updated: 2019-12-23</em></p>
+
+  </div><div class="disqus">
+    <div id="disqus_thread"></div>
+<script>
+
+ /**
+  *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+  *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+ /*
+    var disqus_config = function () {
+    this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+    this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+  */
+ (function() { // DON'T EDIT BELOW THIS LINE
+     var d = document, s = d.createElement('script');
+     s.src = 'https://bartek-blog.disqus.com/embed.js';
+     s.setAttribute('data-timestamp', +new Date());
+     (d.head || d.body).appendChild(s);
+ })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+  </div>
+  <a class="u-url" href="/nginx/node/javascript/2019/12/15/nginx-hello-world.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Bartek&#39;s Cheat Sheet</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Bartek&#39;s Cheat Sheet</li><li><a class="u-email" href="mailto:bartek.skorulski@gmail.com">bartek.skorulski@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/sbartek"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">sbartek</span></a></li><li><a href="https://www.twitter.com/bartekskorulski"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">bartekskorulski</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>I&#39;m Bartek. I&#39;m Data Scientist and Machine Learning Developer. This my cheat sheet mostly on installing new software.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
