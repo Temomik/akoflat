@@ -3,6 +3,12 @@ cmake_minimum_required(VERSION 3.21)
 set(SRC_PATH source)
 set(PROJECT_NAME akoflat)
 
+# SET(BUILD_MODE Debug)
+# SET(CMAKE_CXX_FLAGS "-Wall")
+# SET(CMAKE_CXX_FLAGS_DEBUG "-g")
+# SET(CMAKE_CXX_FLAGS_RELEASE "-O3")
+# SET(CMAKE_APPLE_SILICON_PROCESSOR "arm64")
+
 function(SUBDIRLIST PREFIX FOLDER_PATH)
     message(folder_path " ${FOLDER_PATH}")
 

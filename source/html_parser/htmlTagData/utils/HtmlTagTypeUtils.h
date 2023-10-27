@@ -19,5 +19,7 @@ namespace Html
 
         Type GetTagType(const std::string_view& tag);
         bool IsEndOfTag(const std::string_view& tag, const std::string_view& endTag);
+
+        bool IsSeparatorCharacter(const char character);
     }
 }

@@ -10,18 +10,24 @@ namespace Html
 {
     namespace Tag
     {
-
         class Data
         {
         public:
-            Data()
-            {
-            }
+            Data() = default;
 
-            Data(const char *pointer, size_t length, const Tag::Type type)
+            Data(const std::string_view& tag, const std::string_view& data, size_t length, const Tag::Type type)
             {
-                raw = std::string_view(pointer, length);
+                raw = std::string_view(tag.data(), length);
                 this->type = type;
+                this->tag = tag;
+                this->data = data;
+            };
+
+            Data(const std::string_view& tag, size_t length, const Tag::Type type)
+            {
+                raw = std::string_view(tag.data(), length);
+                this->type = type;
+                this->tag = tag;
             };
 
             Data(const Data& data)
@@ -33,7 +39,7 @@ namespace Html
                 this->attributes = data.attributes;
             };
 
-            std::queue<std::unique_ptr<Data>> childs;
+            std::deque<std::shared_ptr<Data>> childs;
 
             Tag::Type type;
             std::string_view raw;

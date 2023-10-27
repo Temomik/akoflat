@@ -1,251 +1,299 @@
-#include <BaseHtmlParser.h>
-#include <stddef.h>
+#include <algorithm>
+#include <deque>
 #include <iostream>
+#include <optional>
+#include <set>
+#include <stddef.h>
 #include <string>
-#include <fstream>
-#include <string_view>
+#include <utility>
+#include <cstring>
+
+#include "BaseHtmlParser.h"
+#include "HtmlTagTypeData.h"
+#include "HtmlTagTypeUtils.h"
+#include "Utils.h"
 
 using std::string;
 using std::string_view;
 using namespace Html;
 
-void BaseParser::ParseHtml(const char *htmlCode)
+namespace Html
 {
-
-    std::ofstream output;
-
-    output.open("parsed.html");
-    for (size_t i = 0; htmlCode[i]; i++)
+    // TODO Split to file
+    class TagAssociatedData
     {
-        if (htmlCode[i] == Tag::StartTag)
+    public:
+        size_t index;
+        std::vector<size_t> childs;
+        bool isTagDataCreated = false;
+    };
+}
+
+void BaseParser::ParseHtml(const char* htmlCode)
+{
+    string_view codeView(htmlCode);
+    std::vector<TagPair> tagPairs;
+
+    std::vector<string_view> tagsArray;
+
+    for (size_t i = 0; i < codeView.size(); i++)
+    {
+        auto index = codeView.find(Tag::StartTag, i);
+        if (index != string_view::npos)
         {
-            if (mLastTagType == Tag::Types::Closed && htmlCode[i + 1] == Tag::ClosedTagSlash)
+            i = index;
+            index = codeView.find_first_of(">", i);
+            string_view tag(htmlCode + i, index - i + 1);
+
+            size_t countToSkip = 0;
+
+            countToSkip += GetSkipTagCount<Tag::Type::Comment>(tag, codeView, i);
+            countToSkip += GetSkipTagCount<Tag::Type::Script>(tag, codeView, i);
+            countToSkip += GetSkipTagCount<Tag::Type::Style>(tag, codeView, i);
+            countToSkip += GetSkipTagCount<Tag::Type::Code>(tag, codeView, i);
+            countToSkip += GetSkipTagCount<Tag::Type::NoScript>(tag, codeView, i);
+
+            i += countToSkip;
+
+            if (countToSkip == 0)
             {
-                while (htmlCode[i] && htmlCode[i] != Tag::EndTag)
+                tagsArray.push_back(tag);
+            }
+        }
+    }
+
+    for (size_t i = 0; i < tagsArray.size(); i++)
+    {
+        auto endIndex = ParseTagPair(tagsArray, i, codeView);
+
+        if (endIndex.has_value())
+        {
+            tagPairs.push_back(TagPair{i, endIndex.value()});
+        }
+    }
+
+    // TODO sort tagPairs
+
+    std::vector<TagAssociatedData> tagAssociatedData;
+
+    for (size_t i = 0; i < tagPairs.size(); i++)
+    {
+        TagAssociatedData currentTagAssociatedData;
+        currentTagAssociatedData.index = i;
+
+        for (size_t j = i + 1; j < tagPairs.size(); j++)
+        {
+            if (tagPairs[i].first < tagPairs[j].first && tagPairs[i].second > tagPairs[j].second)
+            {
+                currentTagAssociatedData.childs.push_back(j);
+            }
+        }
+
+        tagAssociatedData.push_back(currentTagAssociatedData);
+    }
+
+    for (size_t i = 0; i < tagAssociatedData.size(); i++)
+    {
+        std::set<size_t> indexToRemove;
+
+        for (auto child : tagAssociatedData[i].childs)
+        {
+            for (auto indexes : tagAssociatedData[child].childs)
+            {
+                indexToRemove.insert(indexes);
+            }
+        }
+
+        auto& childs = tagAssociatedData[i].childs;
+        childs.erase(std::remove_if(childs.begin(), childs.end(),
+                                    [indexToRemove](size_t index)
+                                    { return indexToRemove.find(index) != indexToRemove.end(); }),
+                     childs.end());
+    }
+
+    mDotRoot = std::make_shared<Tag::Data>();
+    for (auto& tagData : tagAssociatedData)
+    {
+        if (tagData.isTagDataCreated)
+        {
+            continue;
+        }
+
+        tagData.isTagDataCreated = true;
+        mDotRoot->childs.push_back(CreateTagData(tagPairs, tagsArray, tagData));
+
+        std::deque<std::pair<TagAssociatedData&, std::shared_ptr<Tag::Data>>> tagDataStack;
+
+        auto stackPair = std::make_pair(std::ref(tagData), mDotRoot->childs.back());
+
+        tagDataStack.push_back(stackPair);
+
+        for (; tagDataStack.size() != 0;)
+        {
+            auto top = tagDataStack.back();
+            tagDataStack.pop_back();
+            ParseTagInfo(top.second);
+
+            for (auto& child : top.first.childs)
+            {
+                auto& childAssociatedData = tagAssociatedData[child];
+                childAssociatedData.isTagDataCreated = true;
+
+                auto tmp = CreateTagData(tagPairs, tagsArray, childAssociatedData);
+
+                top.second->childs.push_back(tmp);
+
+                auto stackPair = std::make_pair(std::ref(childAssociatedData),
+                                                top.second->childs.back());
+
+                tagDataStack.push_back(stackPair);
+            }
+        }
+    }
+    size_t o = 123;
+}
+
+const std::shared_ptr<const Tag::Data> BaseParser::GetHtmlDotRoot() const
+{
+    return mDotRoot;
+}
+
+std::optional<size_t> BaseParser::ParseTagPair(const std::vector<string_view>& tags,
+                                               const size_t index, const string_view& codeView)
+{
+    auto type = Tag::GetTagType(tags[index]);
+
+    if (type == Tag::Type::Unclosed)
+    {
+        return index;
+    }
+    else
+    {
+        auto& tag = tags[index];
+        // TODO create method in utils with name IsEndTag
+        if (Utils::FindIC(tag, "</", tag.length()) != string_view::npos)
+        {
+            // skip end tag
+            return {};
+        }
+
+        size_t sameTagCount = 0;
+        for (size_t j = index + 1; j < tags.size(); j++)
+        {
+            // TODO create method in utils with name GetStartTagLength
+            auto length = tag.find_first_of(" \t\n>");
+
+            if (Utils::EqualsIC(tag, tags[j], length))
+            {
+                sameTagCount++;
+            }
+
+            if (Tag::IsEndOfTag(tag, tags[j]))
+            {
+                if (sameTagCount == 0)
                 {
-                    i++;
+                    return j;
                 }
-                
-                //TODO handle invalid html file when htmlCode[i] != Tag::EndTag
-                FinalizeTagParsing(i);
-
-                continue;
-            };
-
-            auto tagType = Tag::GetTagType(htmlCode + i);
-            auto tagData = Tag::Data(htmlCode + i, i, tagType);
-
-            // skip script
-            if (tagType == Tag::Types::Script)
-            {
-                string_view scriptTag(htmlCode + i);
-                string endTag = "</script";
-
-                auto endScriptIndex = scriptTag.find(endTag);
-
-                i += endScriptIndex + endTag.size();
-                continue;
+                else
+                {
+                    sameTagCount--;
+                }
             }
+        }
+    }
 
-            // skip comment
-            if (tagType == Tag::Types::Comment)
-            {
-                string_view scriptTag(htmlCode + i);
-                string endTag = "-->";
+    return {};
+}
 
-                auto endIndex = scriptTag.find(endTag);
+std::shared_ptr<Tag::Data> BaseParser::CreateTagData(const std::vector<TagPair>& tagPairs,
+                                    const std::vector<string_view>& tagsArray,
+                                    const TagAssociatedData& associatedData)
+{
+    auto& tagPair = tagPairs[associatedData.index];
+    auto& startTag = tagsArray[tagPair.first];
+    auto& endTag = tagsArray[tagPair.second];
+    auto size = (endTag.end() - startTag.data()) / sizeof(char);
+    auto type = Tag::GetTagType(startTag);
 
-                i += endIndex + endTag.size();
-                continue;
-            }
+    if (type == Tag::Type::Unclosed)
+    {
+        size = startTag.size();
+        return std::make_shared<Tag::Data>(Tag::Data(startTag, size, type));
+    }
 
-            // skip style
-            if (tagType == Tag::Types::Style)
-            {
-                string_view scriptTag(htmlCode + i);
-                string endTag = "</style";
+    // TODO add new template method in utils with name GetLength<char>()
+    auto dataSize = (endTag.begin() - startTag.end()) / sizeof(char);
+    auto data = string_view(startTag.end(), dataSize);
 
-                auto endIndex = scriptTag.find(endTag);
+    return std::make_shared<Tag::Data>(Tag::Data(startTag, data, size, type));
+}
 
-                i += endIndex + endTag.size();
-                continue;
-            }
+template <Tag::Type type>
+size_t BaseParser::GetSkipTagCount(const string_view& tag, const string_view& htmlData,
+                                   const size_t offset)
+{
+    Tag::TypeData<type> tagData;
+    auto startIndex = Utils::FindIC(tag, tagData.TagStart, tagData.TagStart.length());
+    if (startIndex != string_view::npos)
+    {
+        auto length = htmlData.length() - offset;
+        auto commentEndIndex = Utils::FindIC(htmlData, tagData.TagEnd, length, offset);
 
-            AddTagData(tagData);
+        if (commentEndIndex != string_view::npos)
+        {
+            return commentEndIndex - offset + tagData.TagEnd.size();
+        }
+    }
+
+    return 0;
+}
+
+// TODO move to utils
+bool IsAttributeSeparator(const char* data) { return strncmp("=\"", data, 2) == 0; }
+
+// todo tests for attribute parsing
+void BaseParser::ParseTagInfo(std::shared_ptr<Tag::Data> tagData) 
+{
+    auto size = tagData->tag.size();
+    auto& tag = tagData->tag;
+
+    for (size_t i = 0; i < size; i++)
+    {
+        while (i < size && !std::isspace(tag[i]))
+        {
+            i++;
+        }
+
+        while (i < size && std::isspace(tag[i]))
+        {
+            i++;
+        }
+
+        size_t keyStart = i;
+
+        while (i < size && tag[i] != '\"')
+        {
+            i++;
+        }
+        size_t keyEnd = i;
+        i++;
+
+        while (i < size && tag[i] != '\"')
+        {
+            i++;
+        }
+
+        auto keyLength = std::max(0ul, keyEnd - keyStart + 1 - 2);
+        auto valueLength = std::max(0ul, i - keyEnd + 1 - 2);
+
+        if (keyLength ==0 || valueLength == 0)
+        {
             continue;
-        }
-
-        if (htmlCode[i] == Tag::EndTag)
-        {
-            if (mLastTagType == Tag::Types::Closed)
-            {
-                continue;
-            }
-
-            FinalizeTagParsing(i);
-
-            continue;
-        }
-    }
-    output.close();
-}
-
-void BaseParser::AddTagData(const Tag::Data &tagData)
-{
-    mLastTagType = tagData.type;
-
-    if (mHtmlTagsStack.size() == 0)
-    {
-        mTagsData.push_back(tagData);
-        mHtmlTagsStack.push(mTagsData.back());
-    } else 
-    {
-        auto& lastTagChilds = mHtmlTagsStack.top().get().childs;
-        lastTagChilds.push_back(tagData);
-        mHtmlTagsStack.push(lastTagChilds.back());
-    }
-}
-
-void BaseParser::FinalizeTagParsing(const size_t index)
-{
-    // TODO add parsing of inner data of tag;
-    if (mHtmlTagsStack.size() > 0)
-    {
-        auto &tagData = mHtmlTagsStack.top().get();
-
-        tagData.raw.length = index - tagData.raw.length + 1;
-        
-        ParseTagData(tagData);
-        ParseTagInfo(tagData);
-
-        mHtmlTagsStack.pop();
-    }
-
-    if (mHtmlTagsStack.size() > 0)
-    {
-        mLastTagType = mHtmlTagsStack.top().get().type;
-    } else
-    {
-        mLastTagType = Tag::Types::Comment;
-    }
-}
-
-void BaseParser::ParseTagData(Tag::Data &tagData)
-{
-    if (tagData.type == Tag::Types::Closed)
-    {
-        size_t startIndex = 0, endIndex = 0;
-
-        for (size_t i = 0; i < tagData.raw.length; i++)
-        {
-            if (tagData.raw.pointer[i] == Tag::EndTag)
-            {
-                startIndex = i + 1;
-                break;
-            }
-        }
-
-        for (size_t i = startIndex; i < tagData.raw.length; i++)
-        {
-            if (tagData.raw.pointer[i] == Tag::StartTag)
-            {
-                endIndex = i;
-                break;
-            }
-        }
-
-        tagData.data.pointer = tagData.raw.pointer + startIndex;
-        tagData.data.length = endIndex - startIndex;
-
-        string tmp(tagData.data.pointer, tagData.data.length);
-        if (tagData.data.length > 0)
-        {
-            std::cout << "|__|" << tmp << "|__|" << std::endl;
         } 
-    }
-}
 
-bool IsSeparatorCharacter(const char character)
-{
-    switch (character)
-    {
-    case ' ':
-        return true;
-    case '\n':
-        return true;
-    case '\t':
-        return true;
-    case Tag::EndTag:
-        return true;
-    default:
-        return false;
-    }
-}
+        string_view key(tag.data() + keyStart, keyLength);
+        string_view value(tag.data() + keyEnd + 1, valueLength);
 
-bool IsAttributeSeparator(const char* data)
-{
-    return strncmp("=\"", data, 2) == 0;
-}
-
-
-//todo fix  class="gb_nd gb_xd gb_td gb_Be gb_Oe gb_Te"> this data parsing and test it
-void BaseParser::ParseTagInfo(Tag::Data &tagData)
-{   
-    if (tagData.type == Tag::Types::Comment)
-    {
-        return;
-    }
-
-    size_t tagAttributesIndex = 1;
-
-    auto &rawPtr = tagData.raw.pointer;
-
-    for (; !IsSeparatorCharacter(rawPtr[tagAttributesIndex]); tagAttributesIndex++)
-    {
-    }
-
-    // +- need to skip start tag character
-    tagData.info.tag.pointer = tagData.raw.pointer + 1;
-    tagData.info.tag.length = tagAttributesIndex - 1;
-
-    size_t infoLength = 0;
-
-    for (size_t i = tagAttributesIndex; i < tagData.raw.length; i++)
-    {
-        size_t startIndex = 0, endIndex = 0, separatorIndex = 0;
-
-        for (; IsSeparatorCharacter(rawPtr[i]); i++)
-        {
-        };
-        startIndex = i;
-
-        for (; !IsSeparatorCharacter(rawPtr[i]); i++)
-        {
-            if (IsAttributeSeparator(rawPtr + i))
-            {
-                separatorIndex = i;
-            }
-        };
-
-        endIndex = i;
-
-        if (separatorIndex != 0)
-        {
-            Tag::Attribute attribute;
-
-            attribute.key.pointer = tagData.raw.pointer + startIndex;
-            attribute.key.length = separatorIndex - startIndex;
-
-            attribute.value.pointer = tagData.raw.pointer + separatorIndex + 1;
-            attribute.value.length = endIndex - startIndex;
-             
-
-            tagData.info.attributes.push_back(attribute);
-        }
-
-        if (rawPtr[i] != Tag::EndTag )
-        {
-            break;
-        }
+        tagData->attributes.insert(std::pair(key, value));
     }
 }

@@ -1,51 +1,49 @@
 #include <gtest/gtest.h>
-#include <BaseHtmlParser.h>
 #include <fstream>
 #include <string>
+
+#include "BaseHtmlParser.h"
+#include "HtmlParserUtils.h"
 
 using std::string;
 using std::stringstream;
 using std::ifstream;
 
-TEST(BaseHtmlParser, ParseSimpleUrl)
+namespace
 {
-    Html::BaseParser parser;
-    ifstream htmlStream;
-    string htmlFilePath = "../tests/data/html.html";
-    stringstream htmlDataStream;
-    htmlStream.open(htmlFilePath);
-    bool isFileOpened = htmlStream.is_open();
-
-    if (isFileOpened)
+    const string GetDataFromFile(const string& path)
     {
-        htmlDataStream << htmlStream.rdbuf();
+        ifstream htmlStream;
+        stringstream htmlDataStream;
+        htmlStream.open(path);
+        bool isFileOpened = htmlStream.is_open(); 
+        string res;
 
-        parser.ParseHtml(htmlDataStream.str().c_str());
+        if (isFileOpened)
+        {
+            htmlDataStream << htmlStream.rdbuf();
+            res = htmlDataStream.str();
+            htmlStream.close();
+        }
 
-        htmlStream.close();
+        return res;
     }
-
-    EXPECT_TRUE(isFileOpened);
 }
 
-//the same for comments empty comment and code
-// TEST(BaseHtmlParser, ParseUrlWithScriptTag_shouldBeSkipped)
-// {
-//     Html::BaseParser parser;
-//     ifstream htmlStream;
-//     string htmlFilePath = "../tests/data/skip_script.html";
-//     stringstream htmlDataStream;
-//     htmlStream.open(htmlFilePath);
-//     bool isFileOpened = htmlStream.is_open();
+TEST(BaseHtmlParser, ParseSimpleHtml)
+{
+    Html::BaseParser parser;
+    string code = GetDataFromFile("../tests/data/simple.html");
+    parser.ParseHtml(code.c_str());
 
-//     if (isFileOpened)
-//     {
-//         htmlDataStream << htmlStream.rdbuf();
+    EXPECT_EQ(parser.GetHtmlDotRoot()->childs.size(), 2);
+}
 
-//         parser.ParseHtml(htmlDataStream.str().c_str());
+TEST(BaseHtmlParser, ParseSimpleHtml_WithSkipTags)
+{
+    Html::BaseParser parser;
+    string code = GetDataFromFile("../tests/data/simple_with_skip.html");
+    parser.ParseHtml(code.c_str());
 
-//         htmlStream.close();
-//     }
-
-//     EXPECT_TRUE(isFileOpened);
-// }
+    EXPECT_EQ(parser.GetHtmlDotRoot()->childs.size(), 2);
+}
