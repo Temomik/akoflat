@@ -12,11 +12,17 @@ namespace
     }
 }
 
-bool Utils::EqualsIC(const std::string_view &lhs, const std::string_view &rhs, const size_t length)
+// TODO cover with tests
+bool Utils::EqualsIC(const std::string_view &lhs, const std::string_view &rhs, const size_t length, const size_t offset)
 {
-    size_t minLength = std::min<size_t>(lhs.length(), rhs.length());
+    if (lhs.length() < rhs.length() + offset)
+    {
+        return false;
+    }
+
+    size_t minLength = std::min<size_t>(lhs.length() - offset, rhs.length());
     auto lengthConstrain = std::clamp<size_t>(length, 0, minLength);
-    return std::equal(lhs.begin(), lhs.begin() + lengthConstrain, rhs.begin(),
+    return std::equal(lhs.begin() + offset, lhs.begin() + offset + lengthConstrain, rhs.begin(),
                       rhs.begin() + lengthConstrain, ICharEquals);
 }
 

@@ -26,7 +26,7 @@ std::deque<HtmlDot> Html::FindAll(const std::string_view& tag, const AttributeMa
             dataStack.push_back(child);
         }
 
-        if (Utils::EqualsIC(tagData->tag, tag, tag.size()))
+        if (Utils::EqualsIC(tagData->tag, tag, tag.size(), 1)) // 1 offset is need to skip <
         {
             size_t attributeCount = 0;
 
