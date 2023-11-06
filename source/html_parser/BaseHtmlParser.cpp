@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cstring>
 #include <deque>
 #include <iostream>
 #include <optional>
@@ -6,7 +7,6 @@
 #include <stddef.h>
 #include <string>
 #include <utility>
-#include <cstring>
 
 #include "BaseHtmlParser.h"
 #include "HtmlTagTypeData.h"
@@ -206,8 +206,8 @@ std::optional<size_t> BaseParser::ParseTagPair(const std::vector<string_view>& t
 }
 
 std::shared_ptr<Tag::Data> BaseParser::CreateTagData(const std::vector<TagPair>& tagPairs,
-                                    const std::vector<string_view>& tagsArray,
-                                    const TagAssociatedData& associatedData)
+                                                     const std::vector<string_view>& tagsArray,
+                                                     const TagAssociatedData& associatedData)
 {
     auto& tagPair = tagPairs[associatedData.index];
     auto& startTag = tagsArray[tagPair.first];
@@ -252,7 +252,7 @@ size_t BaseParser::GetSkipTagCount(const string_view& tag, const string_view& ht
 bool IsAttributeSeparator(const char* data) { return strncmp("=\"", data, 2) == 0; }
 
 // todo tests for attribute parsing
-void BaseParser::ParseTagInfo(std::shared_ptr<Tag::Data> tagData) 
+void BaseParser::ParseTagInfo(std::shared_ptr<Tag::Data> tagData)
 {
     auto size = tagData->tag.size();
     auto& tag = tagData->tag;
@@ -286,10 +286,10 @@ void BaseParser::ParseTagInfo(std::shared_ptr<Tag::Data> tagData)
         auto keyLength = std::max(0ul, keyEnd - keyStart + 1 - 2);
         auto valueLength = std::max(0ul, i - keyEnd + 1 - 2);
 
-        if (keyLength ==0 || valueLength == 0)
+        if (keyLength == 0 || valueLength == 0)
         {
             continue;
-        } 
+        }
 
         string_view key(tag.data() + keyStart, keyLength);
         string_view value(tag.data() + keyEnd + 1, valueLength);

@@ -9,7 +9,7 @@ class IPersistenceStorage
     virtual bool CreateFolders(const std::string& folder) const = 0;
 
     /// @brief recursive deletion of folders and files
-    virtual bool RemoveAll(const std::string& folder) const = 0;
+    virtual bool RemoveAll(const std::string& path) const = 0;
 
     /// @brief Save and overrite all data in file
     virtual bool Save(const std::string& folder, const std::string& fileName,

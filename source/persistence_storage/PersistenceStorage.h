@@ -9,7 +9,7 @@ public:
 
     bool CreateFolders(const std::string& folder) const override;
 
-    bool RemoveAll(const std::string& folder) const override;
+    bool RemoveAll(const std::string& path) const override;
 
     bool Save(const std::string& folder, const std::string& fileName,
               const std::string& data) const override;

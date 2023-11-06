@@ -27,12 +27,12 @@ bool PersistenceStorage::CreateFolders(const std::string& folder) const
     return true;
 }
 
-bool PersistenceStorage::RemoveAll(const std::string& folder) const
+bool PersistenceStorage::RemoveAll(const std::string& path) const
 {
-    fs::path path(mPathToStorage);
-    path /= folder;
+    fs::path absPath(mPathToStorage);
+    absPath /= path;
 
-    return fs::remove_all(path);
+    return fs::remove_all(absPath);
 }
 
 bool PersistenceStorage::Save(const std::string& folder, const std::string& fileName,
