@@ -3,12 +3,6 @@ cmake_minimum_required(VERSION 3.21)
 set(SRC_PATH source)
 set(PROJECT_NAME akoflat)
 
-# SET(BUILD_MODE Debug)
-# SET(CMAKE_CXX_FLAGS "-Wall")
-# SET(CMAKE_CXX_FLAGS_DEBUG "-g")
-# SET(CMAKE_CXX_FLAGS_RELEASE "-O3")
-# SET(CMAKE_APPLE_SILICON_PROCESSOR "arm64")
-
 function(SUBDIRLIST PREFIX FOLDER_PATH)
     message(folder_path " ${FOLDER_PATH}")
 
@@ -24,7 +18,28 @@ function(SUBDIRLIST PREFIX FOLDER_PATH)
     set(${PREFIX}_FOLDERS ${dirlist} PARENT_SCOPE)
 endfunction()
 
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+set(Boost_USE_MULTITHREADED ON)
+
 project(${PROJECT_NAME} LANGUAGES CXX)
+
+find_package(Threads REQUIRED)
+find_package(OpenSSL REQUIRED)
+find_package(Boost COMPONENTS system REQUIRED)
+find_package(CURL REQUIRED)
+
+include_directories(/usr/local/include ${OPENSSL_INCLUDE_DIR} ${Boost_INCLUDE_DIR})
+if (CURL_FOUND)
+    include_directories(${CURL_INCLUDE_DIRS})
+    add_definitions(-DHAVE_CURL)
+endif()
+
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(JSONCPP jsoncpp)
+link_libraries(${JSONCPP_LIBRARIES})
+# target_link_libraries(${PROJECT_NAME} ${JSONCPP_LIBRARIES})
 
 file(GLOB_RECURSE SRC_FILES ${SRC_PATH}/*.cpp)
 message(STATUS SRC_FILES = "${SRC_FILES}")
@@ -33,6 +48,8 @@ SUBDIRLIST(HEADER ${SRC_PATH})
 message(STATUS Include Folders -> = "${HEADER_FOLDERS}")
 
 add_executable(${PROJECT_NAME} ${SRC_FILES})
+
+target_link_libraries(${PROJECT_NAME} /usr/local/lib/libTgBot.a ${JSONCPP_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${CURL_LIBRARIES})
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${HEADER_FOLDERS})
 

@@ -150,7 +150,6 @@ void BaseParser::ParseHtml(const char* htmlCode)
             }
         }
     }
-    size_t o = 123;
 }
 
 const std::shared_ptr<const Tag::Data> BaseParser::GetHtmlDotRoot() const

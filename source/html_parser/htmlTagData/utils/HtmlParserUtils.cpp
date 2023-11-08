@@ -32,12 +32,6 @@ std::deque<HtmlDot> Html::FindAll(const std::string_view& tag, const AttributeMa
 
             for (auto& attribute : attributeMap)
             {
-                if (tagData->attributes.size() != 0)
-                {
-                    size_t d;
-                    d = 1;
-                }
-
                 auto it = tagData->attributes.find(attribute.first);
                 if (it != tagData->attributes.end() &&
                     it->second.size() == attribute.second.size() &&
