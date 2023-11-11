@@ -14,6 +14,8 @@ void ThreadPool::Initialize()
 {
     for (size_t i = 0; i < mThreadsCount; i++)
     {
-        mThreads.push_back(std::make_shared<Thread>(mCommands));
+        auto thread = std::make_shared<Thread>(mCommands);
+        thread->Start();
+        mThreads.push_back(thread);
     }
 }
