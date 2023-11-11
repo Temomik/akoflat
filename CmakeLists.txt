@@ -89,7 +89,7 @@ message(STATUS Include Folders -> = "${HEADER_FOLDERS}")
 
 add_executable(${TESTABLE_PROJECT_NAME} ${SRC_FILES} ${TEST_SRC_FILES})
 target_include_directories(${TESTABLE_PROJECT_NAME} PRIVATE ${HEADER_FOLDERS} ${TEST_HEADER_FOLDERS})
-target_link_libraries(${TESTABLE_PROJECT_NAME} PRIVATE GTest::gtest_main)
+target_link_libraries(${TESTABLE_PROJECT_NAME} PRIVATE GTest::gtest_main ${JSONCPP_LIBRARIES})
 target_compile_features(${TESTABLE_PROJECT_NAME} PRIVATE cxx_std_17)
 
 if (WIN32 AND BUILD_SHARED_LIBS)
