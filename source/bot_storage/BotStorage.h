@@ -17,6 +17,9 @@ public:
     bool SaveId(const std::string& id) override;
     bool RemoveId(const std::string& id) override;
 
+    std::optional<Telegram::User::Config> GetUserConfig(const std::string& id) const override;
+    bool SaveUserConfig(const std::string& id, const Telegram::User::Config& config) override;
+
     bool SaveShownFlatId(const std::string& id, const std::string& flatId) override;
     std::optional<std::deque<std::string>> GetShownFlatIds(const std::string& id) const override;
 

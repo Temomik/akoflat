@@ -2,14 +2,18 @@
 
 #include <filesystem>
 
+#include "TgUserConfigSerializator.h"
+
 using std::string;
 namespace fs = std::filesystem;
 
 namespace
 {
     static string ShownIdsFolder = "shown_flat_ids";
-    static string KnownIdsFile = "Known_ids";
+    static string KnownIdsFile = "known_ids";
     static string KnownIdsFolder = "ids";
+
+    static string UserConfigFolder = "users_config";
 }
 
 BotStorage::BotStorage(const std::string& rootFolder)
@@ -69,6 +73,26 @@ bool BotStorage::RemoveId(const std::string& id)
     }
 
     return ret;
+}
+
+std::optional<Telegram::User::Config> BotStorage::GetUserConfig(const std::string& id) const
+{
+    auto raw = mPersistenceStorage.Load(UserConfigFolder, id);
+    Telegram::User::Config config;
+
+    if (Serializator<Telegram::User::Config>::Deserialize(config, raw))
+    {
+        return config;
+    }
+
+    return {};
+}
+
+bool BotStorage::SaveUserConfig(const std::string& id, const Telegram::User::Config& config)
+{
+    auto raw = Serializator<Telegram::User::Config>::Serialize(config);
+
+    return mPersistenceStorage.Save(UserConfigFolder, id, raw);
 }
 
 bool BotStorage::SaveShownFlatId(const std::string& id, const std::string& flatId)

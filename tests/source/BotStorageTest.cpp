@@ -2,6 +2,7 @@
 
 #include "BotStorage.h"
 #include "PersistenceStorage.h"
+#include "TgUserConfigSerializator.h"
 
 using std::string;
 
@@ -78,20 +79,17 @@ TEST(BotStorage, Remove_WhenExist_ShouldBeRmoved)
     EXPECT_EQ(localIdsCount, 0);
 }
 
-TEST(BotStorage, Remove_WhenDoesNotExist_ShouldNotBeRmoved)
+TEST(BotStorage, Remove_WhenDoesNotExist_ShouldNotBeRemoved)
 {
     PersistenceStorage persistenceStorage(rootPath);
     persistenceStorage.RemoveAll("");
 
     const string id = "432101234";
-    size_t localIdsCount = 0, fsIdsCount = 0;
 
     BotStorage storage(rootPath);
     storage.Init();
 
     auto status = storage.RemoveId(id);
-
-    localIdsCount = storage.GetIds().size();
 
     EXPECT_FALSE(status);
 }
@@ -123,4 +121,29 @@ TEST(BotStorage, SaveShownFlatId_SaveNewFlatId_ShouldBeSaved)
 
     EXPECT_EQ(localFlatId, flatId);
     EXPECT_EQ(fsFlatId, flatId);
+}
+
+TEST(BotStorage, SaveLoadConfig_WhenDoesNotExist_ShouldBeSuccess)
+{
+    PersistenceStorage persistenceStorage(rootPath);
+    persistenceStorage.RemoveAll("");
+
+    const string id = "432101234";
+    std::string raw = "{\"minPrice\":204,\"maxPrice\":762,\"city\":\"Brest\",\"floorCount\":[3,4],\"platforms\":[\"Onliner\",\"Realt\"]}";
+    Telegram::User::Config config;
+
+    Serializator<Telegram::User::Config>::Deserialize(config, raw);
+
+    BotStorage storage(rootPath);
+    storage.Init();
+
+    auto status = storage.SaveUserConfig(id, config);
+    auto loadConfig = storage.GetUserConfig(id).value();
+
+    EXPECT_EQ(loadConfig.City, config.City);
+    EXPECT_EQ(loadConfig.FloorCount, config.FloorCount);
+    EXPECT_EQ(loadConfig.Platforms, config.Platforms);
+    EXPECT_EQ(loadConfig.Price, config.Price);
+
+    EXPECT_TRUE(status);
 }
