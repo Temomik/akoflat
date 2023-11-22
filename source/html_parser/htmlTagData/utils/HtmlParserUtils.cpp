@@ -50,3 +50,53 @@ std::deque<HtmlDot> Html::FindAll(const std::string_view& tag, const AttributeMa
 
     return res;
 }
+
+bool Html::ExportData(std::string& value, const std::string_view& tag, const AttributeMap& attributeMap, const HtmlDot root)
+{
+    auto dataDot = FindAll(tag, attributeMap, root);
+
+    if (dataDot.size() == 1)
+    {
+        value = dataDot.front()->data;
+
+        return true;
+    }
+
+    return false;
+}
+
+bool Html::ExportDataArray(std::vector<std::string>& array, const std::string_view& tag, const AttributeMap& attributeMap, const HtmlDot root)
+{
+    auto dataDot = FindAll(tag, attributeMap, root);
+    bool status = false;
+
+    if (dataDot.size() > 0)
+    {
+        for (auto dot : dataDot)
+        {
+            array.push_back(std::string(dot->data));
+            status = true;
+        }
+    }
+
+    return status;
+}
+
+bool Html::ExportAttributeValue(std::string& value, const std::string key, const std::string_view& tag, const AttributeMap& attributeMap, const HtmlDot root)
+{
+    auto dataDot = FindAll(tag, attributeMap, root);
+
+    if (dataDot.size() == 1)
+    {
+        auto attributeDot = dataDot.front()->attributes.find(key);
+
+        if (attributeDot != dataDot.front()->attributes.end())
+        {
+            value = (*attributeDot).second;
+
+            return true;
+        }
+    }
+
+    return false;
+}

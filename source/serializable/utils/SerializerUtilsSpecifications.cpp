@@ -11,6 +11,12 @@ namespace Serialize
     namespace Utils
     {
         template <>
+        void Serializer::ValueToJson<Json::Value>(const char* key, const Json::Value& value)
+        {
+            mRoot[key] = value;
+        }
+
+        template <>
         void Serializer::ValueToJson<size_t>(const char* key, const size_t& value)
         {
             mRoot[key] = value;

@@ -1,10 +1,12 @@
 #pragma once
 
+#include <memory>
+
 namespace Html
 {
     class IParser
     {
     public:
-        virtual void ParseHtml(const char* htmlCode) = 0;
+        virtual bool ParseHtml(std::shared_ptr<const std::string> htmlCode) = 0;
     };
 }

@@ -1,21 +1,22 @@
 #include <BashExecutor.h>
-#include <stdio.h>
 #include <memory>
+#include <stdio.h>
 
-using std::string;
 using std::shared_ptr;
+using std::string;
 
 namespace
 {
-    constexpr size_t bufferSize = 1024; 
+    constexpr size_t bufferSize = 1024;
 }
 
 const string BashExecutor::Exec(const string& command)
 {
-    shared_ptr<FILE> pipe(popen(command.c_str(), "r"), pclose);
+    std::string suppressedCommand = command + " 2>/dev/null";
+    shared_ptr<FILE> pipe(popen(suppressedCommand.c_str(), "r"), pclose);
     if (!pipe)
     {
-        //TODO replace with static string from utils;
+        // TODO replace with static string from utils;
         return "";
     }
 

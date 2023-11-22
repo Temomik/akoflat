@@ -8,6 +8,7 @@
 #include <stack>
 #include <string_view>
 #include <vector>
+#include <optional>
 
 namespace Html
 {
@@ -18,7 +19,7 @@ namespace Html
     class BaseParser : public IParser
     {
     public:
-        void ParseHtml(const char* htmlCode) override;
+        bool ParseHtml(std::shared_ptr<const std::string> htmlCode) override;
         const std::shared_ptr<const Tag::Data> GetHtmlDotRoot() const;
 
     private:
@@ -35,6 +36,7 @@ namespace Html
 
         void ParseTagInfo(std::shared_ptr<Tag::Data> tagData);
 
+        std::shared_ptr<const std::string> mHtmlCode;
         std::shared_ptr<Tag::Data> mDotRoot;
         Tag::Type mLastTagType = Tag::Type::Comment;
     };

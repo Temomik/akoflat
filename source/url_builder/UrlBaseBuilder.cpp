@@ -1,15 +1,20 @@
 #include <UrlBaseBuilder.h>
 
-namespace UrlBuilder
+namespace Url
 {
-    void UrlBuilder::BaseBuilder::SetUrl(const string &url)
+    void BaseBuilder::SetUrl(const string& url)
     {
         mUrl = url;
     }
-    
-    void BaseBuilder::AddQuerryItem(const string &item)
+
+    void BaseBuilder::AddQuerryItem(const string& item)
     {
         mQuerryItems.push_back(item);
+    }
+
+    void BaseBuilder::AddAnchorItem(const std::string& item)
+    {
+        mAnchorItems.push_back(item);
     }
 
     void BaseBuilder::Reset()
@@ -17,21 +22,31 @@ namespace UrlBuilder
         mUrl.clear();
         mQuerryItems.clear();
     }
+
     const string BaseBuilder::Build() const
     {
         string querry;
-        char separator = '/';
-        
+        char separator = '?';
+
         for (size_t i = 0; i < mQuerryItems.size(); ++i)
         {
-            querry += separator;            
+            querry += separator;
             querry += mQuerryItems[i];
 
-            separator = i == 0 ? '?' : '&';
+            separator = '&';
         }
 
-        string link = mUrl + querry;
-        
+        separator = '#';
+        for (size_t i = 0; i < mAnchorItems.size(); ++i)
+        {
+            querry += separator;
+            querry += mAnchorItems[i];
+
+            separator = '&';
+        }
+
+        string link = mUrl + Slash + querry;
+
         return link;
     }
 }

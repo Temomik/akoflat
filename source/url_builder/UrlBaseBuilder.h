@@ -4,21 +4,22 @@
 #include <vector>
 #include <IUrlBuilder.h>
 
-using std::string;
-using std::vector;
-
-namespace UrlBuilder
+namespace Url
 {
-    class BaseBuilder : public IUrlBuilder
+    class BaseBuilder : public IBuilder
     {
         public:
-            void SetUrl(const string& url) override; 
-            void AddQuerryItem(const string& item) override; 
+            void SetUrl(const std::string& url) override; 
+            void AddQuerryItem(const std::string& item) override; 
+            void AddAnchorItem(const std::string& item) override; 
             void Reset() override;
-            const string Build() const override;
+            const std::string Build() const override;
 
         protected:
-            string mUrl;
-            vector<string> mQuerryItems;
+            const char Slash = '/';
+
+            std::string mUrl;
+            std::vector<std::string> mQuerryItems;
+            std::vector<std::string> mAnchorItems;
     };
 }

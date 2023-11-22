@@ -29,8 +29,11 @@ namespace Html
     };
 }
 
-void BaseParser::ParseHtml(const char* htmlCode)
+bool BaseParser::ParseHtml(std::shared_ptr<const std::string> htmlCodePtr)
 {
+    mHtmlCode = htmlCodePtr;
+    const char* htmlCode = mHtmlCode->c_str();
+
     string_view codeView(htmlCode);
     std::vector<TagPair> tagPairs;
 
@@ -150,6 +153,9 @@ void BaseParser::ParseHtml(const char* htmlCode)
             }
         }
     }
+
+    // TODO split to functions and add return status handling
+    return true;
 }
 
 const std::shared_ptr<const Tag::Data> BaseParser::GetHtmlDotRoot() const
@@ -185,6 +191,7 @@ std::optional<size_t> BaseParser::ParseTagPair(const std::vector<string_view>& t
             if (Utils::EqualsIC(tag, tags[j], length))
             {
                 sameTagCount++;
+                continue;
             }
 
             if (Tag::IsEndOfTag(tag, tags[j]))

@@ -15,7 +15,7 @@ namespace
 // TODO cover with tests
 bool Utils::EqualsIC(const std::string_view &lhs, const std::string_view &rhs, const size_t length, const size_t offset)
 {
-    if (lhs.length() < rhs.length() + offset)
+    if (lhs.length() < length + offset || rhs.length() < length)
     {
         return false;
     }
