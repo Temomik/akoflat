@@ -1,10 +1,7 @@
 #include "Thread.h"
 
-#include "CommandsDeque.h"
-
-Thread::Thread(CommandDeque& commands, std::chrono::milliseconds waitTime)
-    : mCommands(commands)
-    , mWaitTime(waitTime)
+Thread::Thread(ICommandsDeque& commands, std::chrono::milliseconds waitTime)
+    : mCommands(commands), mWaitTime(waitTime)
 {
 }
 
@@ -20,7 +17,8 @@ bool Thread::Start()
         mIsForceJoin = false;
         mIsJoin = false;
 
-        mThread = std::make_shared<std::thread>([this]{ Execute(); });
+        mThread = std::make_shared<std::thread>([this]
+                                                { Execute(); });
 
         return true;
     }
@@ -43,12 +41,13 @@ void Thread::Join(bool isForce)
 void Thread::Execute()
 {
     auto& conditionalVariable = mCommands.GetConditionalVariable();
-    
-    while(!mIsJoin)
+
+    while (!mIsJoin)
     {
         std::unique_lock lock(mMutex);
 
-        conditionalVariable.wait_for(lock, mWaitTime, [this]{return mIsForceJoin || !mCommands.IsEmpty();});
+        conditionalVariable.wait_for(lock, mWaitTime, [this]
+                                     { return mIsForceJoin || !mCommands.IsEmpty(); });
 
         if (mIsForceJoin)
         {

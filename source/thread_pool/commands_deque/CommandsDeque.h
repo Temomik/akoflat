@@ -1,22 +1,21 @@
-#pragma once 
+#pragma once
 
-#include <mutex>
 #include <deque>
-#include <functional>
-#include <condition_variable>
-#include <optional>
+#include <mutex>
 
-class CommandDeque
+#include "ICommandsDeque.h"
+
+class CommandsDeque : public ICommandsDeque
 {
 public:
-    void Push(std::function<void()> command)
+    void Push(std::function<void()> command) override
     {
         std::lock_guard<std::mutex> lock(mMutex);
 
         mDeque.push_back(command);
     }
 
-    std::optional<std::function<void()>> Pop()
+    std::optional<std::function<void()>> Pop() override
     {
         std::lock_guard<std::mutex> lock(mMutex);
 
@@ -31,18 +30,18 @@ public:
         return front;
     }
 
-    bool IsEmpty() const
+    bool IsEmpty() const override
     {
         std::lock_guard<std::mutex> lock(mMutex);
 
         return mDeque.empty();
     }
-    
-    std::condition_variable& GetConditionalVariable()
+
+    std::condition_variable& GetConditionalVariable() override
     {
         return mConditionalVariable;
     }
-    
+
 private:
     std::deque<std::function<void()>> mDeque;
     mutable std::mutex mMutex;

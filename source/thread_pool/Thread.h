@@ -1,29 +1,31 @@
 #pragma once
 
-#include <thread>
+#include <chrono>
 #include <condition_variable>
-#include <mutex>
 #include <functional>
 #include <memory>
-#include <chrono>
+#include <mutex>
+#include <thread>
 
-class CommandDeque;
+#include "ICommandsDeque.h"
+
 using namespace std::chrono_literals;
 
 class Thread
 {
 public:
-    Thread(CommandDeque& commands, std::chrono::milliseconds waitTime = 300ms);
+    Thread(ICommandsDeque& commands, std::chrono::milliseconds waitTime = 300ms);
     ~Thread();
 
     bool Start();
     void Join(bool isForce = false);
+
 private:
     void Execute();
 
     std::shared_ptr<std::thread> mThread;
     std::mutex mMutex;
-    CommandDeque& mCommands;
+    ICommandsDeque& mCommands;
 
     bool mIsForceJoin = false;
     bool mIsJoin = false;

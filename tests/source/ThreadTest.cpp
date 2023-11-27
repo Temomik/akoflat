@@ -9,7 +9,7 @@ TEST(ThreadTest, isThreadWorking)
     size_t i = 0;
     std::mutex mutex;
 
-    CommandDeque commands;
+    CommandsDeque commands;
     Thread thread(commands);
     Thread thread1(commands);
     Thread thread2(commands);
