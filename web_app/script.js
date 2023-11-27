@@ -94,19 +94,33 @@ function toggleCheckbox(text, prevValue, element) {
     return text;
 }
 
-function GetJsonObject() {
-    jsonObject = {}
+// enum command
+// {
+//     None = 0,
+//     SetUserConfig,
+//     Start,
+//     Stop
+// }
 
-    jsonObject ["minPrice"] = parseInt(sliderOne.value);
-    jsonObject ["maxPrice"] = parseInt(sliderTwo.value);
+function GetJsonObject() {
+
+    commandJson = {}
+    commandJson ["minPrice"] = parseInt(sliderOne.value);
+    commandJson ["maxPrice"] = parseInt(sliderTwo.value);
 
     var flatCountInt = flatCounts.map(function (x) { 
         return parseInt(x); 
       });
 
-    jsonObject ["city"] = city;
-    jsonObject ["floorCount"] = flatCountInt
-    jsonObject ["platforms"] = platforms;
+    commandJson ["city"] = city;
+    commandJson ["floorCount"] = flatCountInt
+    commandJson ["platforms"] = platforms;
+
+
+    jsonObject = {}
+
+    jsonObject ["command"] = 1;
+    jsonObject ["value"] = commandJson;
 
     return jsonObject;
 }
@@ -145,8 +159,8 @@ var initDataUnsafe = Telegram.WebApp.initDataUnsafe || {};
 
 function sendMessage(msg_id, with_webview) {
     if (!initDataUnsafe.query_id) {
-        alert('WebViewQueryId not defined');
-        return;
+    alert('WebViewQueryId not defined');
+    return;
     }
     $('button').prop('disabled', true);
     $('#btn_status').text('Sending...').removeClass('ok err').show();
