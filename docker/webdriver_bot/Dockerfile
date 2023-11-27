@@ -20,5 +20,5 @@ RUN cmake .
 RUN make -j 8
 RUN make install 
 
-RUN apt-get install pkg-config
-RUN apt-get install libjsoncpp-dev
+RUN apt-get install pkg-config -y
+RUN apt-get install libjsoncpp-dev -y
