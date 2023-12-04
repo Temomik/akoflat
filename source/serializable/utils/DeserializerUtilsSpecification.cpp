@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include "TelegramWebCommandType.h"
 
 using std::vector;
 using std::string;
@@ -52,6 +53,12 @@ namespace Serialize
         }
 
         template <>
+        Json::Value Deserializer::JsonToValue<Json::Value>(const char* key)
+        {
+            return mRoot[key];
+        }
+
+        template <>
         string Deserializer::JsonToValue<string>(const char* key)
         {
             return static_cast<string>(mRoot[key].asString());
@@ -61,6 +68,12 @@ namespace Serialize
         size_t Deserializer::JsonToValue<size_t>(const char* key)
         {
             return static_cast<size_t>(mRoot[key].asUInt());
+        }
+
+        template <>
+        Telegram::Web::CommandType Deserializer::JsonToValue<Telegram::Web::CommandType>(const char* key)
+        {
+            return static_cast<Telegram::Web::CommandType>(mRoot[key].asUInt());
         }
     }
 }

@@ -19,7 +19,7 @@ namespace Commands
         }
 
     private:
-        static inline const std::string baseCommand = "timeout 10 chromium --log-level=0 --alsa-check-close-timeout=1000 --noerrdialogs --validate-input-event-stream --headless=new --disable-gpu --no-sandbox --dump-dom ";
+        static inline const std::string baseCommand = "timeout 15 chromium --log-level=0 --alsa-check-close-timeout=1000 --noerrdialogs --validate-input-event-stream --headless=new --disable-gpu --no-sandbox --dump-dom ";
 
         const std::string mUrl;
     };

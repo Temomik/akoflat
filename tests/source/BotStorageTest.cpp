@@ -101,7 +101,6 @@ TEST(BotStorage, SaveShownFlatId_SaveNewFlatId_ShouldBeSaved)
 
     const string id = "432101234";
     const string flatId = "flatId";
-    string localFlatId, fsFlatId;
 
     {
         BotStorage storage(rootPath);
@@ -109,18 +108,15 @@ TEST(BotStorage, SaveShownFlatId_SaveNewFlatId_ShouldBeSaved)
 
         storage.SaveId(id);
         storage.SaveShownFlatId(id, flatId);
-
-        localFlatId = storage.GetShownFlatIds(id).value().front();
+        
+        EXPECT_FALSE(storage.IsNewFlatId(id, flatId));
     }
     {
         BotStorage storage(rootPath);
         storage.Init();
 
-        fsFlatId = storage.GetShownFlatIds(id).value().front();
+        EXPECT_FALSE(storage.IsNewFlatId(id, flatId));
     }
-
-    EXPECT_EQ(localFlatId, flatId);
-    EXPECT_EQ(fsFlatId, flatId);
 }
 
 TEST(BotStorage, SaveLoadConfig_WhenDoesNotExist_ShouldBeSuccess)

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <string>
 #include "Utils.h"
+#include <string>
 
 namespace Onliner::Url::Presets
 {
@@ -10,6 +10,7 @@ namespace Onliner::Url::Presets
     std::string GetPresetForCity(const std::string& city)
     {
         auto length = city.length();
+
         if (Utils::EqualsIC(city, "minsk", length))
         {
             return Minsk;

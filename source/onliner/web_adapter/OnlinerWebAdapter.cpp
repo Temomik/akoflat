@@ -1,9 +1,9 @@
 #include "OnlinerWebAdapter.h"
 
 #include "HtmlRequester.h"
+#include "Logger.h"
 #include "OnlinerHtmlParser.h"
 #include "OnlinerUrlBuilder.h"
-
 #include <iostream>
 
 Onliner::WebAdapter::WebAdapter(size_t retryCount)
@@ -19,7 +19,10 @@ std::vector<Telegram::FlatDto> Onliner::WebAdapter::GetFlats(const Telegram::Use
     Html::HtmlRequester requester;
     std::vector<Telegram::FlatDto> flats;
 
-    builder.BuildLink(config);
+    if (!builder.BuildLink(config))
+    {
+        return flats;
+    }
 
     for (size_t retry = 0; retry < mRetryCount; retry++)
     {
@@ -31,7 +34,7 @@ std::vector<Telegram::FlatDto> Onliner::WebAdapter::GetFlats(const Telegram::Use
             if (htmlCode->size() == 0)
             {
                 flats.clear();
-                // TODO ADD LOGS
+                LOG_WARNING("Failed to load page");
                 continue;
             }
 
@@ -42,14 +45,16 @@ std::vector<Telegram::FlatDto> Onliner::WebAdapter::GetFlats(const Telegram::Use
             if (!status)
             {
                 flats.clear();
+                LOG_WARNING("Failed to parse page");
                 continue;
             }
 
             maxPage = parser.GetPagesCount();
         }
+
         if (!flats.empty())
         {
-            break; 
+            break;
         }
     }
 

@@ -4,6 +4,8 @@
 
 #include <cstdlib>
 
+#include "Logger.h"
+
 using Telegram::FlatDto;
 using std::string;
 
@@ -14,7 +16,11 @@ Onliner::HtmlParser::HtmlParser(std::shared_ptr<const std::string> htmlCode)
 
 bool Onliner::HtmlParser::Parse(std::vector<Telegram::FlatDto>& flatsDto)
 {
+    LOG_INFO("Start parsing html")
     ParseHtml(mHtmlCode);
+    LOG_INFO("End parsing html")
+
+    LOG_INFO("Start parsing onliner")
     auto root = GetHtmlDotRoot();
     auto flatsRoot = Html::FindAll("div", {{"id", "search-filter-results"}}, root);
     bool status = true;
@@ -25,6 +31,7 @@ bool Onliner::HtmlParser::Parse(std::vector<Telegram::FlatDto>& flatsDto)
     //TODO sort asc
     if (!status || pages.size() == 0 || pages.front().size() == 0)
     {
+        LOG_ERROR("Failed to parse onliner")
         return false;
     }
 
@@ -52,20 +59,34 @@ bool Onliner::HtmlParser::Parse(std::vector<Telegram::FlatDto>& flatsDto)
             status &= Html::ExportData(rubPrice, "span", {{"data-bind", "text: SearchApartments.formatPrice(apartment.price, 'BYN')"}}, flat);
             dto.Price = usdPrice + " $\n" + rubPrice + " p.";
 
+            auto linkView = std::string_view(dto.Link);
+            auto idStartIndex = linkView.find_last_of("/");
+
+            if (idStartIndex != std::string_view::npos)
+            {
+                dto.id = linkView.substr(idStartIndex + 1);
+            }
+            else
+            {
+                status = false;
+            }
+
             if (status)
             {
                 flatsDto.push_back(dto);
             }
             else
             {
-                //TODO ADD LOGGING
+                LOG_ERROR("Failed to parse onliner")
                 return false;
             }
         }
 
+        LOG_INFO("Success to parse onliner")
         return true;
     }
 
+    LOG_ERROR("Failed to parse onliner")
     return false;
 }
 

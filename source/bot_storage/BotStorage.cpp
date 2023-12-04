@@ -23,6 +23,8 @@ BotStorage::BotStorage(const std::string& rootFolder)
 
 void BotStorage::Init()
 {
+    std::scoped_lock lock(mIdMutex, mFlatIdMutex, mConfigdMutex);
+
     auto ids = mPersistenceStorage.GetLines(KnownIdsFolder, KnownIdsFile);
 
     for (auto& id : ids)
@@ -38,11 +40,20 @@ void BotStorage::Init()
 
 std::deque<std::string> BotStorage::GetIds() const
 {
+    std::scoped_lock lock(mIdMutex);
+
     return std::deque<std::string>(mIds.begin(), mIds.end());
 }
 
 bool BotStorage::SaveId(const std::string& id)
 {
+    std::scoped_lock lock(mIdMutex);
+
+    if (IsIdExist(id))
+    {
+        return true;
+    }
+
     auto ret = SaveIdInternal(id);
 
     mIds.insert(id);
@@ -53,6 +64,8 @@ bool BotStorage::SaveId(const std::string& id)
 
 bool BotStorage::RemoveId(const std::string& id)
 {
+    std::scoped_lock lock(mIdMutex);
+
     if (!IsIdExist(id))
     {
         return false;
@@ -77,10 +90,12 @@ bool BotStorage::RemoveId(const std::string& id)
 
 std::optional<Telegram::User::Config> BotStorage::GetUserConfig(const std::string& id) const
 {
+    std::scoped_lock lock(mConfigdMutex);
+
     auto raw = mPersistenceStorage.Load(UserConfigFolder, id);
     Telegram::User::Config config;
 
-    if (Serializator<Telegram::User::Config>::Deserialize(config, raw))
+    if (!raw.empty() && Serializator<Telegram::User::Config>::Deserialize(config, raw))
     {
         return config;
     }
@@ -90,6 +105,8 @@ std::optional<Telegram::User::Config> BotStorage::GetUserConfig(const std::strin
 
 bool BotStorage::SaveUserConfig(const std::string& id, const Telegram::User::Config& config)
 {
+    std::scoped_lock lock(mConfigdMutex);
+
     auto raw = Serializator<Telegram::User::Config>::Serialize(config);
 
     return mPersistenceStorage.Save(UserConfigFolder, id, raw);
@@ -97,6 +114,8 @@ bool BotStorage::SaveUserConfig(const std::string& id, const Telegram::User::Con
 
 bool BotStorage::SaveShownFlatId(const std::string& id, const std::string& flatId)
 {
+    std::scoped_lock lock(mFlatIdMutex);
+
     if (IsFlatIdExist(id, flatId))
     {
         return false;
@@ -108,16 +127,11 @@ bool BotStorage::SaveShownFlatId(const std::string& id, const std::string& flatI
     return ret;
 }
 
-std::optional<std::deque<std::string>> BotStorage::GetShownFlatIds(const std::string& id) const
+bool BotStorage::IsNewFlatId(const std::string& id, const std::string& flatId) const
 {
-    if (!IsIdExist(id))
-    {
-        return {};
-    }
+    std::scoped_lock lock(mFlatIdMutex);
 
-    auto& shownIds = mIdsData.find(id)->second;
-
-    return std::deque<std::string>(shownIds.begin(), shownIds.end());
+    return !IsFlatIdExist(id, flatId);
 }
 
 bool BotStorage::IsIdExist(const string& id) const

@@ -3,6 +3,7 @@
 #include "IBotStorage.h"
 #include "PersistenceStorage.h"
 
+#include <mutex>
 #include <map>
 #include <set>
 
@@ -21,7 +22,7 @@ public:
     bool SaveUserConfig(const std::string& id, const Telegram::User::Config& config) override;
 
     bool SaveShownFlatId(const std::string& id, const std::string& flatId) override;
-    std::optional<std::deque<std::string>> GetShownFlatIds(const std::string& id) const override;
+    bool IsNewFlatId(const std::string& id, const std::string& flatId) const override;
 
 private:
     bool IsIdExist(const std::string& id) const;
@@ -34,4 +35,8 @@ private:
     std::string mRootFolder;
 
     PersistenceStorage mPersistenceStorage;
+
+    mutable std::mutex mIdMutex;
+    mutable std::mutex mFlatIdMutex;
+    mutable std::mutex mConfigdMutex;
 };

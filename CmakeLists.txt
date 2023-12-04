@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.21)
 
 set(SRC_PATH source)
 set(PROJECT_NAME akoflat)
+set(TGBOT_SRC_PATH tgbot-cpp)
+set(TGBOT_LIB TgBot)
 
 function(SUBDIRLIST PREFIX FOLDER_PATH)
     message(folder_path " ${FOLDER_PATH}")
@@ -47,9 +49,11 @@ message(STATUS SRC_FILES = "${SRC_FILES}")
 SUBDIRLIST(HEADER ${SRC_PATH})
 message(STATUS Include Folders -> = "${HEADER_FOLDERS}")
 
+add_subdirectory(${TGBOT_SRC_PATH})
+
 add_executable(${PROJECT_NAME} ${SRC_FILES})
 
-target_link_libraries(${PROJECT_NAME} /usr/local/lib/libTgBot.a ${JSONCPP_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${CURL_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${TGBOT_LIB} ${JSONCPP_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${CURL_LIBRARIES})
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${HEADER_FOLDERS})
 
@@ -89,7 +93,7 @@ message(STATUS Include Folders -> = "${HEADER_FOLDERS}")
 
 add_executable(${TESTABLE_PROJECT_NAME} ${SRC_FILES} ${TEST_SRC_FILES})
 target_include_directories(${TESTABLE_PROJECT_NAME} PRIVATE ${HEADER_FOLDERS} ${TEST_HEADER_FOLDERS})
-target_link_libraries(${TESTABLE_PROJECT_NAME} PRIVATE /usr/local/lib/libTgBot.a GTest::gtest_main ${JSONCPP_LIBRARIES})
+target_link_libraries(${TESTABLE_PROJECT_NAME} PRIVATE ${TGBOT_LIB} GTest::gtest_main ${JSONCPP_LIBRARIES})
 target_compile_features(${TESTABLE_PROJECT_NAME} PRIVATE cxx_std_17)
 
 if (WIN32 AND BUILD_SHARED_LIBS)

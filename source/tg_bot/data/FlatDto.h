@@ -8,6 +8,7 @@ namespace Telegram
     class FlatDto
     {
     public:
+        std::string id;
         std::string Link;
         std::string Price;
         std::string Address;

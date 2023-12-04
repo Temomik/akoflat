@@ -1,5 +1,11 @@
 {
     "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: LLVM, DerivePointerAlignment: false, PointerAlignment: Left, UseTab: Never, IndentWidth: 4, TabWidth: 4, BreakBeforeBraces: Allman, AllowShortIfStatementsOnASingleLine: false, IndentCaseLabels: false, ColumnLimit: 0, AccessModifierOffset: -4, NamespaceIndentation: All, FixNamespaceComments: false }",
+    "C_Cpp.default.includePath": [
+        "${workspaceFolder}/source/**",
+        "${workspaceFolder}/tests/source/**",
+        "${workspaceFolder}/tgbot-cpp/src/**",
+        "${workspaceFolder}/tgbot-cpp/include/**"
+    ],
     "files.associations": {
         "__locale": "cpp",
         "__string": "cpp",
