@@ -9,30 +9,30 @@ TEST(OnlinerHtmlParser, GetFromLinkAndParse)
 {
     // This test is not stable, OnlinerWebAdapter cover this functionality
 
-    // Telegram::User::Config config;
+    Telegram::User::Config config;
 
-    // config.City = "Minsk";
-    // config.Price.first = 100;
-    // config.Price.second = 320;
-    // config.FloorCount = {2, 3, 4};
+    config.City = "Minsk";
+    config.Price.first = 100;
+    config.Price.second = 320;
+    config.FloorCount = {2, 3, 4};
 
-    // Onliner::UrlBuilder builder;   
+    Onliner::UrlBuilder builder;   
     
-    // builder.BuildLink(config);
-    // auto link = builder.GetNextPage();
+    builder.BuildLink(config);
+    auto link = builder.GetNextPage();
 
-    // Html::HtmlRequester requester;
+    Html::HtmlRequester requester;
 
-    // std::cout << link << std::endl;
+    std::cout << "LINK _: " << link << std::endl;
 
-    // auto htmlCode = requester.Get(link);
+    auto htmlCode = requester.Get(link);
 
-    // ASSERT_FALSE(htmlCode->size() == 0);
+    ASSERT_FALSE(htmlCode->size() == 0);
 
-    // Onliner::HtmlParser parser(htmlCode);  
+    Onliner::HtmlParser parser(htmlCode);  
     
-    // std::vector<Telegram::FlatDto> flatsDto;
-    // parser.Parse(flatsDto);
+    std::vector<Telegram::FlatDto> flatsDto;
+    parser.Parse(flatsDto);
 
-    // ASSERT_FALSE(flatsDto.size() == 0);
+    ASSERT_FALSE(flatsDto.size() == 0);
 }

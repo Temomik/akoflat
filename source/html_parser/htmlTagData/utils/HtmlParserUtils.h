@@ -17,4 +17,5 @@ namespace Html
     bool ExportDataArray(std::vector<std::string>& array, const std::string_view& tag, const AttributeMap& attributeMap, const HtmlDot root);
    
     bool ExportAttributeValue(std::string& value, const std::string key, const std::string_view& tag, const AttributeMap& attributeMap, const HtmlDot root);
+    bool ExportAttributeValueArray(std::vector<std::string>& value, const std::string key, const std::string_view& tag, const AttributeMap& attributeMap, const HtmlDot root);
 }

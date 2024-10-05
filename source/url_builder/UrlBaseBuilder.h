@@ -10,6 +10,7 @@ namespace Url
     {
         public:
             void SetUrl(const std::string& url) override; 
+            void AddSubPathItem(const std::string& item) override; 
             void AddQuerryItem(const std::string& item) override; 
             void AddAnchorItem(const std::string& item) override; 
             void Reset() override;
@@ -19,6 +20,7 @@ namespace Url
             const char Slash = '/';
 
             std::string mUrl;
+            std::vector<std::string> mSubPathItems;
             std::vector<std::string> mQuerryItems;
             std::vector<std::string> mAnchorItems;
     };

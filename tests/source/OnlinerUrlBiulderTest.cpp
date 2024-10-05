@@ -16,7 +16,8 @@ TEST(OnlinerUrlBuilder, BuildUrlFromValidConfig)
     config.City = "minsk";
     config.Price.first = 100;
     config.Price.second = 330;
-    config.FloorCount = {1,2,3};
+    config.FloorCount = {1, 2, 3};
+    config.Platforms = {"Onliner"};
 
     builder.BuildLink(config);
     auto link = builder.GetNextPage();
@@ -34,7 +35,8 @@ TEST(OnlinerUrlBuilder, BuildUrlFromValidConfig_Round)
     config.City = "minsk";
     config.Price.first = 101;
     config.Price.second = 321;
-    config.FloorCount = {1,2,3};
+    config.FloorCount = {1, 2, 3};
+    config.Platforms = {"Onliner"};
 
     builder.BuildLink(config);
     auto link = builder.GetNextPage();
@@ -52,7 +54,8 @@ TEST(OnlinerUrlBuilder, BuildUrlFromValidConfig_Clamp)
     config.City = "minsk";
     config.Price.first = 0;
     config.Price.second = 999999;
-    config.FloorCount = {1,2,3};
+    config.FloorCount = {1, 2, 3};
+    config.Platforms = {"Onliner"};
 
     builder.BuildLink(config);
     auto link = builder.GetNextPage();

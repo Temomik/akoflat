@@ -7,6 +7,7 @@
 
 #include "Logger.h"
 #include "OnlinerWebAdapter.h"
+#include "KufarWebAdapter.h"
 #include "SaveUserConfigWebCommand.h"
 #include "TgCommandDtoSerializator.h"
 
@@ -187,18 +188,33 @@ void Telegram::BotAdapter::DelayedProcess(const size_t id, shared_ptr<UserInfo> 
 
 void Telegram::BotAdapter::SendFlat(const Telegram::FlatDto& flat, const size_t id)
 {
-    auto mediaGroup = make_shared<InputMediaPhoto>();
-    auto str = flat.Images[0];
-    mediaGroup->media = str;
-    mediaGroup->caption = flat.Price + "\n" + flat.Address + "\n" + flat.Info + "\n" + flat.Link;
-    mediaGroup->hasSpoiler = false;
-
     vector<InputMedia::Ptr> mediaGroups;
-    mediaGroups.push_back(mediaGroup);
+    auto caption = flat.Price + "\n" + flat.Address + "\n" + flat.Info + "\n" + flat.Link;
+
+    for (size_t i = 0; i < flat.Images.size(); i++)
+    {
+        auto mediaGroup = make_shared<InputMediaPhoto>();
+        auto str = flat.Images[i];
+        mediaGroup->media = str;
+        if (i == 0)
+        {
+            mediaGroup->caption = caption;
+        }
+        mediaGroup->hasSpoiler = false;
+
+        mediaGroups.push_back(mediaGroup);
+    }
 
     if (SendMediaGroup(id, mediaGroups))
     {
         mStorage.SaveShownFlatId(to_string(id), flat.id);
+        return;
+    }
+
+    if (SendMessage(id, caption))
+    {
+        mStorage.SaveShownFlatId(to_string(id), flat.id);
+        return;
     }
 }
 
@@ -312,7 +328,7 @@ std::vector<std::shared_ptr<IWebFlatAdapter>> Telegram::BotAdapter::GetWebAdapte
     auto adapters = std::vector<std::shared_ptr<IWebFlatAdapter>>();
 
     adapters.push_back(std::make_shared<Onliner::WebAdapter>());
-    // adapters.push_back(std::make_shared<Kufar::WebAdapter>());
+    adapters.push_back(std::make_shared<Kufar::WebAdapter>());
     // adapters.push_back(std::make_shared<Realt::WebAdapter>());
 
     return adapters;

@@ -55,5 +55,5 @@ private:
     std::condition_variable mConditionalVariable;
 
     //TODO make this value configurable
-    const time_t mDelayTime = 60 * 3; 
+    const time_t mDelayTime = 60 * 10; 
 };

@@ -1,8 +1,10 @@
 #include <gtest/gtest.h>
 
+#define WEB_TESTS
+
 #ifdef WEB_TESTS
 
-#include "OnlinerWebAdapter.h"
+#include "KufarWebAdapter.h"
 
 TEST(OnlinerWebAdapter, Initialize)
 {
@@ -11,10 +13,10 @@ TEST(OnlinerWebAdapter, Initialize)
     config.City = "Minsk";
     config.Price.first = 100;
     config.Price.second = 320;
-    config.FloorCount = {2, 3, 4};
-    config.Platforms = {"Onliner"};
+    config.FloorCount = {2, 3, 4};    
+    config.Platforms = {"Kufar"};
 
-    Onliner::WebAdapter webAdapter;
+    Kufar::WebAdapter webAdapter;
 
     auto flats = webAdapter.GetFlats(config);
 

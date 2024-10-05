@@ -65,6 +65,7 @@ bool Onliner::HtmlParser::Parse(std::vector<Telegram::FlatDto>& flatsDto)
             if (idStartIndex != std::string_view::npos)
             {
                 dto.id = linkView.substr(idStartIndex + 1);
+                dto.id += "O";
             }
             else
             {

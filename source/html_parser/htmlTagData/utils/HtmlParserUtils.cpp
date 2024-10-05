@@ -21,7 +21,7 @@ std::deque<HtmlDot> Html::FindAll(const std::string_view& tag, const AttributeMa
         auto tagData = dataStack.back();
         dataStack.pop_back();
 
-        for (auto child : tagData->childs)
+        for (const auto& child : tagData->childs)
         {
             dataStack.push_back(child);
         }
@@ -30,7 +30,7 @@ std::deque<HtmlDot> Html::FindAll(const std::string_view& tag, const AttributeMa
         {
             size_t attributeCount = 0;
 
-            for (auto& attribute : attributeMap)
+            for (const auto& attribute : attributeMap)
             {
                 auto it = tagData->attributes.find(attribute.first);
                 if (it != tagData->attributes.end() &&
@@ -72,7 +72,7 @@ bool Html::ExportDataArray(std::vector<std::string>& array, const std::string_vi
 
     if (dataDot.size() > 0)
     {
-        for (auto dot : dataDot)
+        for (const auto& dot : dataDot)
         {
             array.push_back(std::string(dot->data));
             status = true;
@@ -99,4 +99,28 @@ bool Html::ExportAttributeValue(std::string& value, const std::string key, const
     }
 
     return false;
+}
+
+bool Html::ExportAttributeValueArray(std::vector<std::string>& value, const std::string key, const std::string_view& tag, const AttributeMap& attributeMap, const HtmlDot root)
+{
+    auto dataDot = FindAll(tag, attributeMap, root);
+    bool status = false;
+
+    if (dataDot.size() > 0)
+    {
+
+        for (const auto& data : dataDot)
+        {
+            auto attributeDot = data->attributes.find(key);
+
+            if (attributeDot != data->attributes.end())
+            {
+                auto attributeData = std::string((*attributeDot).second);
+                value.push_back(attributeData);
+                status = true;
+            }
+        }
+    }
+
+    return status;
 }

@@ -13,12 +13,5 @@ RUN apt-get install zlib1g-dev -y
 RUN apt-get install libcurl4-openssl-dev -y
 RUN apt-get install cmake git -y
 
-WORKDIR /home
-RUN git clone -b v1.7.2 --depth 1 https://github.com/reo7sp/tgbot-cpp.git
-WORKDIR /home/tgbot-cpp
-RUN cmake .
-RUN make -j 8
-RUN make install 
-
 RUN apt-get install pkg-config -y
 RUN apt-get install libjsoncpp-dev -y

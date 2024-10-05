@@ -7,6 +7,11 @@ namespace Url
         mUrl = url;
     }
 
+    void BaseBuilder::AddSubPathItem(const std::string& item)
+    {
+        mSubPathItems.push_back(item);
+    }
+
     void BaseBuilder::AddQuerryItem(const string& item)
     {
         mQuerryItems.push_back(item);
@@ -26,7 +31,13 @@ namespace Url
     const string BaseBuilder::Build() const
     {
         string querry;
+        string subPath;
         char separator = '?';
+
+        for (const auto& item : mSubPathItems)
+        {
+            subPath += Slash + item;
+        }
 
         for (size_t i = 0; i < mQuerryItems.size(); ++i)
         {
@@ -45,7 +56,7 @@ namespace Url
             separator = '&';
         }
 
-        string link = mUrl + Slash + querry;
+        string link = mUrl + subPath + Slash + querry;
 
         return link;
     }
