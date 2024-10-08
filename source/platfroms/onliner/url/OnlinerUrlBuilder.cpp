@@ -52,7 +52,7 @@ namespace Onliner
 
         urlBuilder.AddAnchorItem(bounds);
 
-        mUrl = std::make_shared<const string>(urlBuilder.Build());
+        mUrl = std::make_shared<const string>(urlBuilder.Build(true));
 
         return true;
     }

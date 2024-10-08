@@ -28,7 +28,7 @@ namespace Url
         mQuerryItems.clear();
     }
 
-    const string BaseBuilder::Build() const
+    const string BaseBuilder::Build(const bool isQuerrySplitted) const
     {
         string querry;
         string subPath;
@@ -56,7 +56,14 @@ namespace Url
             separator = '&';
         }
 
-        string link = mUrl + subPath + Slash + querry;
+        string link = mUrl + subPath;
+
+        if (isQuerrySplitted)
+        {
+            link += Slash;
+        }
+
+        link += querry;
 
         return link;
     }

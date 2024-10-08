@@ -16,7 +16,7 @@ TEST(OnlinerWebAdapter, Initialize)
     config.FloorCount = {2, 3, 4};    
     config.Platforms = {"Kufar"};
 
-    Kufar::WebAdapter webAdapter;
+    Kufar::WebAdapter webAdapter(15);
 
     auto flats = webAdapter.GetFlats(config);
 

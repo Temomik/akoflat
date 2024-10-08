@@ -15,6 +15,7 @@ TEST(OnlinerHtmlParser, GetFromLinkAndParse)
     config.Price.first = 100;
     config.Price.second = 320;
     config.FloorCount = {2, 3, 4};
+    config.Platforms = {"Onliner"};
 
     Onliner::UrlBuilder builder;   
     

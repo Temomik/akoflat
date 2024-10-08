@@ -73,11 +73,6 @@ bool Kufar::HtmlParser::Parse(std::vector<Telegram::FlatDto>& flatsDto)
             {
                 flatsDto.push_back(dto);
             }
-            else
-            {
-                LOG_ERROR("Failed to parse Kufar")
-                return false;
-            }
         }
 
         LOG_INFO("Success to parse Kufar")
@@ -85,7 +80,7 @@ bool Kufar::HtmlParser::Parse(std::vector<Telegram::FlatDto>& flatsDto)
     }
 
     LOG_ERROR("Failed to parse Kufar")
-    return false;
+    return !flatsDto.empty();
 }
 
 std::string Kufar::HtmlParser::GetPageLink(const size_t pageCount) const

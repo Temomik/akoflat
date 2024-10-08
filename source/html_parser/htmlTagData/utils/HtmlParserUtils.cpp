@@ -55,7 +55,7 @@ bool Html::ExportData(std::string& value, const std::string_view& tag, const Att
 {
     auto dataDot = FindAll(tag, attributeMap, root);
 
-    if (dataDot.size() == 1)
+    for (auto dot : dataDot)
     {
         value = dataDot.front()->data;
 
@@ -86,16 +86,18 @@ bool Html::ExportAttributeValue(std::string& value, const std::string key, const
 {
     auto dataDot = FindAll(tag, attributeMap, root);
 
-    if (dataDot.size() == 1)
+    if (dataDot.size() == 0)
     {
-        auto attributeDot = dataDot.front()->attributes.find(key);
+        return false;
+    }
 
-        if (attributeDot != dataDot.front()->attributes.end())
-        {
-            value = (*attributeDot).second;
+    auto first = dataDot.front();
+    auto attributeDot = first->attributes.find(key);
 
-            return true;
-        }
+    if (attributeDot != first->attributes.end())
+    {
+        value = (*attributeDot).second;
+        return true;
     }
 
     return false;

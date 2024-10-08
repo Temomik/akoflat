@@ -11,7 +11,7 @@ TEST(KufarUrlBuilder, BuildUrlFromValidConfig)
     Kufar::UrlBuilder builder;
     Telegram::User::Config config;
 
-    string expectedLink = "https://re.kufar.by/l/minsk/snyat/kvartiru-dolgosrochno/bez-posrednikov/?cur=USD&prc=r%3A50%2C300&rms=v.or%3A2%2C3%2C4%2C5";
+    string expectedLink = "https://re.kufar.by/l/minsk/snyat/kvartiru-dolgosrochno/bez-posrednikov?cur=USD&prc=r%3A50%2C300&rms=v.or%3A2%2C3%2C4%2C5";
 
     config.City = "minsk";
     config.Price.first = 50;
@@ -30,7 +30,7 @@ TEST(KufarUrlBuilder, BuildUrlFromValidConfig_Round)
     Kufar::UrlBuilder builder;
     Telegram::User::Config config;
 
-    string expectedLink = "https://re.kufar.by/l/minsk/snyat/kvartiru-dolgosrochno/bez-posrednikov/?cur=USD&prc=r%3A50%2C300&rms=v.or%3A2%2C3%2C4%2C5";
+    string expectedLink = "https://re.kufar.by/l/minsk/snyat/kvartiru-dolgosrochno/bez-posrednikov?cur=USD&prc=r%3A50%2C300&rms=v.or%3A2%2C3%2C4%2C5";
 
     config.City = "minsk";
     config.Price.first = 51;
@@ -49,7 +49,7 @@ TEST(KufarUrlBuilder, BuildUrlFromValidConfig_Clamp)
     Kufar::UrlBuilder builder;
     Telegram::User::Config config;
 
-    string expectedLink = "https://re.kufar.by/l/minsk/snyat/kvartiru-dolgosrochno/bez-posrednikov/?cur=USD&prc=r%3A50%2C10000&rms=v.or%3A2%2C3%2C4%2C5";
+    string expectedLink = "https://re.kufar.by/l/minsk/snyat/kvartiru-dolgosrochno/bez-posrednikov?cur=USD&prc=r%3A50%2C10000&rms=v.or%3A2%2C3%2C4%2C5";
 
     config.City = "minsk";
     config.Price.first = 0;

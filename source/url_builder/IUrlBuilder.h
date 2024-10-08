@@ -14,6 +14,6 @@ namespace Url
         virtual void AddSubPathItem(const std::string& item) = 0; 
         virtual void AddAnchorItem(const std::string& item) = 0; 
         virtual void Reset() = 0;
-        virtual const string Build() const = 0;
+        virtual const string Build(const bool isQuerrySplitted) const = 0;
     };
 }

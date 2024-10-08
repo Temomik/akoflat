@@ -14,7 +14,7 @@ namespace Url
             void AddQuerryItem(const std::string& item) override; 
             void AddAnchorItem(const std::string& item) override; 
             void Reset() override;
-            const std::string Build() const override;
+            const std::string Build(const bool isQuerrySplitted = false) const override;
 
         protected:
             const char Slash = '/';
